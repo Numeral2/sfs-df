@@ -18,7 +18,7 @@ numpy
 packaging
 pandas
 pillow
-protobuf
+protobuf==3.20.
 pyarrow
 pydeck
 python-dateutil
