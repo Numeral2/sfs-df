@@ -1,3 +1,4 @@
-streamlit
-requests
-mimetypes
+streamlit==1.21.0
+requests==2.31.0
+python-dotenv==1.0.0
+pillow==9.3.0
