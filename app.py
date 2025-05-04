@@ -4,7 +4,7 @@ import mimetypes
 import pathlib
 
 # n8n webhook URL
-WEBHOOK_URL = "https://n8n-3-rc8h.onrender.com/webhook-test/2f581f98-d5f0-435d-bb4b-2bc01913e240"
+WEBHOOK_URL = "https://primary-production-b791f.up.railway.app/webhook/839b893b-f460-479c-9295-5f3bb8ab3488"
 
 st.title("📤 Upload or Paste File to n8n Webhook")
 
