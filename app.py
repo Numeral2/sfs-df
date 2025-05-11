@@ -29,32 +29,34 @@ with col1:
     st.markdown("### 📝 Podaci o katastarskoj čestici")
     
     # Unos broja katastarske čestice
-    parcel_number = st.text_input("🔢 Broj katastarske čestice", placeholder="Broj kat. čestice")
+    parcel_number = st.text_input("🔢 Broj katastarske čestice", placeholder="Broj kat. čestice", key="parcel_number")
 
     # Unos kvadrature katastarske čestice
-    parcel_area = st.text_input("📐 Kvadratura katastarske čestice (u m²)", placeholder="Kvadratura u m²")
+    parcel_area = st.text_input("📐 Kvadratura katastarske čestice (u m²)", placeholder="Kvadratura u m²", key="parcel_area")
 
-    # Naselje
+    # Naselje - kompaktniji selectbox
     naselje = st.selectbox("Naselje", [
         "Arbanija", "Divulje", "Drvenik Mali", "Drvenik Veli",
         "Mastrinka", "Plano", "Trogir", "Žedno"
-    ])
-    
-    # UPU (Urbanistički plan uređenja)
+    ], key="naselje", index=6)
+
+    # UPU - kompaktniji selectbox
     upu = st.selectbox("UPU", [
         "", "UPU Krban", "UPU naselja Žedno", "UPU poslovne zone POS 3 (UPU 10)",
         "UPU ugostiteljsko – turističke zone Sveti Križ (UPU 17)", "UPU naselja Mastrinka 1 (UPU 6.1)",
         "UPU poslovne zone POS 2 (UPU 15)", "UPU naselja Plano (UPU 18)", "UPU proizvodne zone Plano 3 (UPU 7)"
-    ])
+    ], key="upu", index=0)
+
+    # DPU - kompaktniji selectbox
+    dpu = st.selectbox("DPU", [
+        "", "DPU Brigi – Lokvice (DPU 5)", "DPU 1. faze obale od Madiracinog mula do Duhanke (DPU 4)"
+    ], key="dpu", index=0)
     
-    # DPU (Detaljni plan uređenja)
-    dpu = st.selectbox("DPU", ["", "DPU Brigi – Lokvice (DPU 5)", "DPU 1. faze obale od Madiracinog mula do Duhanke (DPU 4)"])
-    
-    # Zona (Prema ISPU sustavu)
-    zone = st.text_input("🧭 Zona", placeholder="Zona iz ISPU sustava")
+    # Zona (Prema ISPU sustavu) - kompaktniji input
+    zone = st.text_input("🧭 Zona", placeholder="Zona iz ISPU sustava", key="zone")
     
     # Dodatni upit
-    additional_query = st.text_area("💬 Dodatni upit", placeholder="Dodatni upit ili napomena")
+    additional_query = st.text_area("💬 Dodatni upit", placeholder="Dodatni upit ili napomena", height=100, key="additional_query")
 
     # Kombinirani input koji se automatski popunjava u box
     combined_input = f"""
@@ -74,7 +76,7 @@ with col2:
     st.markdown("### 🤖 Bot odgovor")
     
     # Polje za odgovor od bota, automatski popunjeno
-    user_input_box = st.text_area("Upit za bot", value=combined_input, height=250)
+    user_input_box = st.text_area("Upit za bot", value=combined_input, height=250, key="user_input_box")
     
     # Submit button
     if st.button("✅ Pošaljite upit"):
@@ -95,6 +97,3 @@ with col2:
                 st.text(response.text)
         else:
             st.error(f"Greška prilikom slanja (status kod {response.status_code})")
-
-# Obrada podataka nakon sl
-
