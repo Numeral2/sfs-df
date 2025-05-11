@@ -1,80 +1,62 @@
 import streamlit as st
 import requests
-import mimetypes
-import pathlib
 
-# n8n webhook URL
-WEBHOOK_URL = "https://primary-production-b791f.up.railway.app/webhook/839b893b-f460-479c-9295-5f3bb8ab3488"
+# Webhook URL
+webhook_url = 'https://primary-production-b791f.up.railway.app/webhook-test/839b893b-f460-479c-9295-5f3bb8ab3488'
 
-st.title("📤 Upload or Paste File to n8n Webhook")
+# ChatGPT API URL (zamijeni s vlastitim API-jem)
+chatgpt_api_url = 'https://your-chatgpt-api-url.com'
 
-# File uploader (supports drag and drop)
-uploaded_file = st.file_uploader("Drag and drop a file here or click to select", type=["txt", "pdf", "docx", "jpg", "png", "csv", "json", "jpeg"])
+# Funkcija za slanje podataka na webhook
+def send_to_webhook(kvart, upit):
+    payload = {
+        'kvart': kvart,
+        'upit': upit
+    }
+    response = requests.post(webhook_url, json=payload)
+    return response.json()  # assuming webhook returns a JSON response
 
-# Text area for pasting raw text content
-text_content = st.text_area("Or paste your text content here (it will be sent as a file)", height=200)
+# Funkcija za komunikaciju s ChatGPT
+def chat_with_gpt(question):
+    payload = {'question': question}
+    response = requests.post(chatgpt_api_url, json=payload)
+    return response.json().get('answer', 'No answer from ChatGPT')
 
-if uploaded_file is not None:
-    # File upload logic
-    file_name = uploaded_file.name
-    file_bytes = uploaded_file.getvalue()
+# Streamlit Layout
+st.title('Dobrodošli na Interaktivnu Aplikaciju')
+st.write('Odaberite splitski kvart i postavite upit.')
 
-    # Guess MIME type
-    guessed_mime, _ = mimetypes.guess_type(file_name)
-    if not guessed_mime:
-        ext = pathlib.Path(file_name).suffix.lower()
-        fallback_mime = {
-            ".txt": "text/plain",
-            ".pdf": "application/pdf",
-            ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            ".doc": "application/msword",
-            ".png": "image/png",
-            ".jpg": "image/jpeg",
-            ".jpeg": "image/jpeg",
-            ".csv": "text/csv",
-            ".json": "application/json",
-        }
-        mime_type = fallback_mime.get(ext, "application/unknown")
+# Popis kvartova prema vašem popisu
+kvartovi = [
+    'Bačvice', 'Blatine-Škrape', 'Bol', 'Brda', 'Grad', 'Gripe', 'Kman', 'Kocunar',
+    'Lokve', 'Lovret', 'Lučac-Manuš', 'Mejaši', 'Meje', 'Mertojak', 'Neslanovac', 
+    'Plokite', 'Pujanke', 'Ravne njive', 'Sirobuja', 'Spinut', 'Split 3', 'Sućidar', 
+    'Šine', 'Trstenik', 'Varoš', 'Visoka', 'Žnjan-Pazdigrad'
+]
+
+# Odabir kvarta
+kvart = st.selectbox('Odaberite kvart:', kvartovi)
+
+# Unos upita
+upit = st.text_area('Unesite svoj upit:', '')
+
+# Slanje podataka na webhook kad korisnik klikne
+if st.button('Pošaljite'):
+    if upit:  # Provjerava ako je upit popunjen
+        webhook_response = send_to_webhook(kvart, upit)
+        st.write(f'Webhook odgovor: {webhook_response}')
+        
+        # ChatGPT odgovara na postavljeni upit
+        chatgpt_response = chat_with_gpt(upit)
+        st.write(f'ChatGPT odgovor: {chatgpt_response}')
     else:
-        mime_type = guessed_mime
+        st.error('Molimo unesite upit prije slanja.')
 
-    # Display file details
-    st.write(f"**File Name:** {file_name}")
-    st.write(f"**MIME Type:** {mime_type}")
-    st.write(f"**Size:** {len(file_bytes) / 1024:.2f} KB")
+# Polje za dodatna pitanja ChatGPT-u
+additional_question = st.text_area('Pitajte ChatGPT bilo što:', '')
 
-    # Send button for file upload
-    if st.button("Send File to n8n"):
-        files = {
-            "file": (file_name, file_bytes, mime_type),
-        }
-        try:
-            response = requests.post(WEBHOOK_URL, files=files)
-            if response.status_code == 200:
-                st.success("✅ File successfully sent to n8n!")
-            else:
-                st.error(f"❌ Error: Status {response.status_code}")
-                st.text(response.text)
-        except Exception as e:
-            st.error(f"Request failed: {e}")
-
-elif text_content:
-    # If text is provided, send it as a file
-    if st.button("Send Text to n8n"):
-        file_name = "pasted_text.txt"
-        file_bytes = text_content.encode("utf-8")
-        mime_type = "text/plain"
-
-        files = {
-            "file": (file_name, file_bytes, mime_type),
-        }
-
-        try:
-            response = requests.post(WEBHOOK_URL, files=files)
-            if response.status_code == 200:
-                st.success("✅ Text successfully sent to n8n!")
-            else:
-                st.error(f"❌ Error: Status {response.status_code}")
-                st.text(response.text)
-        except Exception as e:
-            st.error(f"Request failed: {e}")
+if additional_question:
+    if st.button('Postavite ChatGPT pitanje'):
+        chatgpt_answer = chat_with_gpt(additional_question)
+        st.write(f'ChatGPT odgovor: {chatgpt_answer}')
+        st.text_area('Upit', additional_question, key="copy_question", disabled=True)  # Copy option
