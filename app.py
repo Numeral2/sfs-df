@@ -3,6 +3,7 @@ import requests
 
 st.set_page_config(page_title="Katastarski upit – Trogir", layout="centered")
 
+# Stilizacija stranice
 st.markdown("""
     <style>
     .main {
@@ -27,6 +28,22 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# Nulti korak - link prema ISPU stranici s uputama
+st.markdown("""
+    <h2 style='text-align: center; color: #333;'>Korak 0: Provjeri zonu na ISPU platformi</h2>
+    <p style='text-align: center; color: #666;'>Prije nego nastaviš, provjeri u kojoj zoni se nalazi tvoje zemljište. Klikni na donji link kako bi otvorio ISPU platformu. Slijedi upute ispod kako bi pronašao odgovarajući sloj i zonu.</p>
+    <p style='text-align: center;'>
+    <a href="https://www.ispu.hr/" target="_blank" style="font-size: 16px; color: #0066cc; text-decoration: none;">Posjeti ISPU platformu</a>
+    </p>
+    <h4 style='text-align: center; color: #333;'>Upute:</h4>
+    <ul style='text-align: center; color: #666;'>
+        <li>1. Na stranici ISPU, u lijevom padajućem izborniku odaberi sloj \"Prostorni plan\".</li>
+        <li>2. Uključi odgovarajući sloj za zonu koja te zanima (npr. \"Stambeno-poslovna zona\", \"Poslovna zona\", itd.).</li>
+        <li>3. Provjeri boju na karti koja označava tvoju zonu. Najčešće žuta boja označava stambeno-poslovnu zonu (M1), dok je plava boja rezervirana za industrijske zone (M2).</li>
+    </ul>
+""", unsafe_allow_html=True)
+
+# Glavni dio aplikacije
 st.markdown("""
     <h2 style='text-align: center; color: #333;'>Katastarski upit za područje Grada Trogira</h2>
     <p style='text-align: center; color: #666;'>Popunite sve potrebne informacije kako bi se generirao strukturiran zahtjev za analiziranje čestice.</p>
@@ -85,7 +102,7 @@ Molim vas da na temelju niže navedenih informacija izvučete sve relevantne pro
 5. DPU: {dpu if dpu else 'nije navedeno'}
 
 Zahvaljujem unaprijed na uvidu u relevantne dokumente i planove.
-    """
+    """.strip()
 
     st.markdown("### ✅ Generirani tekstualni zahtjev:")
     st.code(final_text, language="markdown")
