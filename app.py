@@ -7,99 +7,77 @@ st.markdown("""
     <style>
     /* Globalni stilovi */
     .main {
-        background: linear-gradient(135deg, #f4f2ec, #d6d4c9); /* Zemljani tonovi */
-        color: #2b2a2a; /* Tamno smeđa boja za tekst */
         font-family: 'Arial', sans-serif;
-        background-image: url('https://upload.wikimedia.org/wikipedia/commons/5/5c/Terrestrial_globe_illustration.svg'); /* Ilustracija Zemlje */
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
+        background-color: #f4f4f4; /* Svijetla pozadina */
+        color: #333333; /* Tamna boja za tekst */
     }
 
     .block-container {
-        padding-top: 3rem;
-        padding-bottom: 3rem;
-        padding-left: 2rem;
-        padding-right: 2rem;
-        background-color: rgba(255, 255, 255, 0.8); /* Poluprozirni pozadinski sloj */
-        border-radius: 1.5rem;
+        padding: 2rem;
+        background-color: white;
+        border-radius: 1rem;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Blaga sjena za uočljivost */
+        margin-top: 2rem;
     }
 
     /* Stilovi za tekstualne elemente */
     h2, h4 {
-        color: #5f4b3b; /* Topla tamno smeđa za naslove */
         text-align: center;
         font-weight: 700;
     }
-    p, ul {
-        color: #7d6a4e; /* Svjetlija smeđa za tekst */
+    p {
         text-align: center;
         font-size: 16px;
+        line-height: 1.6;
     }
-    a {
-        color: #ba9d5b; /* Zlato žuta za linkove */
-        text-decoration: none;
-        font-weight: 600;
-    }
-    a:hover {
-        color: #d1b07b; /* Svjetlija žuta pri hoveru */
-        text-decoration: underline;
-    }
-
+    
     /* Stil za formu */
     .stTextInput > div > div > input {
-        background-color: #f0ebe1; /* Svijetli bež za inpute */
-        border: 2px solid #d1b07b; /* Zlata boja za granicu */
+        background-color: #fff;
+        border: 1px solid #ccc;
         padding: 0.8rem;
-        border-radius: 0.8rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        width: 100%;
     }
     .stSelectbox > div > div {
-        background-color: #f0ebe1;
-        border: 2px solid #d1b07b;
+        background-color: #fff;
+        border: 1px solid #ccc;
         padding: 0.8rem;
-        border-radius: 0.8rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        width: 100%;
     }
 
     /* Posebni stilovi za gumb za slanje */
     .stButton > button {
-        background-color: #ba9d5b; /* Zlato žuta boja za gumb */
+        background-color: #5c6bc0;
         color: white;
-        border-radius: 1.5rem;
+        border-radius: 1rem;
         font-weight: 600;
         padding: 0.8rem 2rem;
         font-size: 18px;
+        margin-top: 1rem;
     }
     .stButton > button:hover {
-        background-color: #d1b07b;
+        background-color: #3f4d9d;
     }
 
-    /* Stilovi za prikazivanje generiranog teksta */
+    /* Stil za prikazivanje generiranog teksta */
     .stCode {
-        background-color: #f4f2ec;
-        border: 2px solid #d1b07b;
+        background-color: #fff;
+        border: 1px solid #ccc;
         border-radius: 1rem;
         padding: 1rem;
         font-family: 'Courier New', Courier, monospace;
         font-size: 16px;
-        color: #5f4b3b;
+        color: #333;
+        margin-top: 2rem;
     }
 
-    /* Animacije */
-    .animated-btn {
-        animation: fadeIn 1s ease-in-out;
-    }
-
-    /* Animacija za gumbe */
-    @keyframes fadeIn {
-        0% { opacity: 0; }
-        100% { opacity: 1; }
-    }
-
-    /* Stil za grafičke elemente */
-    .map-icon {
-        width: 30px;
-        height: 30px;
-        margin-right: 10px;
+    /* Raspored za formu */
+    .form-section {
+        margin-bottom: 2rem;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -108,12 +86,12 @@ st.markdown("""
 st.markdown("""
     <h2>Prostorni Plan za Grad Trogir</h2>
     <p>Upišite podatke o katastarskoj čestici kako biste generirali relevantne informacije iz prostornog plana.</p>
-    <hr style='border-top: 2px solid #d1b07b;'>
+    <hr style='border-top: 2px solid #5c6bc0;'>
 """, unsafe_allow_html=True)
 
 with st.form("katastarski_form"):
     # Prvi korak - Podaci o čestici
-    st.subheader("1. Podaci o čestici")
+    st.markdown("<h4>1. Podaci o čestici</h4>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
         parcel_number = st.text_input("Broj katastarske čestice", placeholder="npr. 1234/5")
@@ -121,7 +99,7 @@ with st.form("katastarski_form"):
         parcel_area = st.text_input("Kvadratura čestice (m²)", placeholder="npr. 545")
 
     # Drugi korak - Lokacija
-    st.subheader("2. Lokacija unutar Grada Trogira")
+    st.markdown("<h4>2. Lokacija unutar Grada Trogira</h4>", unsafe_allow_html=True)
     col3, col4 = st.columns(2)
     with col3:
         naselje = st.selectbox("Naselje", [
@@ -132,7 +110,7 @@ with st.form("katastarski_form"):
         zona = st.text_input("Zona prema ISPU sustavu", placeholder="npr. M1, K1, R3")
 
     # Treći korak - Prostorni planovi
-    st.subheader("3. Planovi prostornog uređenja")
+    st.markdown("<h4>3. Planovi prostornog uređenja</h4>", unsafe_allow_html=True)
     col5, col6 = st.columns(2)
     with col5:
         upu = st.selectbox("UPU (ako postoji)", [
