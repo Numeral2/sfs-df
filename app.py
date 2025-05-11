@@ -1,74 +1,73 @@
 import streamlit as st
 import requests
 
-# Webhook URL
-webhook_url = 'https://primary-production-b791f.up.railway.app/webhook-test/839b893b-f460-479c-9295-5f3bb8ab3488'
+st.set_page_config(page_title="Katastarski upit - Trogir", layout="centered")
+st.title("📄 Katastarski upit za područje Trogira")
 
-# ChatGPT API URL (zamijeni s vlastitim API-jem)
-chatgpt_api_url = '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'
+st.markdown("Unesite potrebne informacije da bismo mogli obraditi vaš upit:")
 
-# Funkcija za slanje podataka na webhook
-def send_to_webhook(kvart, upit):
-    payload = {
-        'kvart': kvart,
-        'upit': upit
-    }
-    response = requests.post(webhook_url, json=payload)
-    return response.json()  # assuming webhook returns a JSON response
+# Inputi
+parcel_number = st.text_input("🔢 Broj katastarske čestice")
+parcel_area = st.text_input("📐 Kvadratura katastarske čestice (u m²)")
 
-# Funkcija za komunikaciju s ChatGPT
-def chat_with_gpt(question):
-    payload = {'question': question}
-    response = requests.post(chatgpt_api_url, json=payload)
-    return response.json().get('answer', 'No answer from ChatGPT')
+city = "Trogir"  # Fiksno jer je samo za Trogir
+st.markdown("### 📍 Odaberite naselje")
+naselje = st.selectbox("Naselje", [
+    "Arbanija", "Divulje", "Drvenik Mali", "Drvenik Veli",
+    "Mastrinka", "Plano", "Trogir", "Žedno"
+])
 
-# Streamlit Layout
-st.title('Dobrodošli na Interaktivnu Aplikaciju')
-st.write('Odaberite splitski kvart i postavite upit.')
+st.markdown("### 🏗️ Odaberite UPU (ako postoji)")
+upu = st.selectbox("UPU", [
+    "",  # Prazno ako nije primjenjivo
+    "UPU Krban",
+    "UPU naselja Žedno",
+    "UPU poslovne zone POS 3 (UPU 10)",
+    "UPU ugostiteljsko – turističke zone Sveti Križ (UPU 17)",
+    "UPU naselja Mastrinka 1 (UPU 6.1)",
+    "UPU poslovne zone POS 2 (UPU 15)",
+    "UPU naselja Plano (UPU 18)",
+    "UPU proizvodne zone Plano 3 (UPU 7)"
+])
 
-# Popis kvartova prema vašem popisu
-kvartovi = [
-    'Bačvice', 'Blatine-Škrape', 'Bol', 'Brda', 'Grad', 'Gripe', 'Kman', 'Kocunar',
-    'Lokve', 'Lovret', 'Lučac-Manuš', 'Mejaši', 'Meje', 'Mertojak', 'Neslanovac', 
-    'Plokite', 'Pujanke', 'Ravne njive', 'Sirobuja', 'Spinut', 'Split 3', 'Sućidar', 
-    'Šine', 'Trstenik', 'Varoš', 'Visoka', 'Žnjan-Pazdigrad'
-]
+st.markdown("### 🏘️ Odaberite DPU (ako postoji)")
+dpu = st.selectbox("DPU", [
+    "",  # Prazno ako nije primjenjivo
+    "DPU Brigi – Lokvice (DPU 5)",
+    "DPU 1. faze obale od Madiracinog mula do Duhanke (DPU 4)"
+])
 
-# Odabir kvarta
-kvart = st.selectbox('Odaberite kvart:', kvartovi)
+zone = st.text_input("🧭 Zona (prema ISPU sustavu)")
 
-# Unos upita
-upit = st.text_area('Unesite svoj upit:', '')
+# Submit
+if st.button("✅ Pošalji upit"):
+    # Spremi sve u jedan tekstualni box za bot
+    combined_input = f"""
+Grad: {city}
+Katastarska čestica: {parcel_number}
+Kvadratura: {parcel_area} m²
+Naselje: {naselje}
+UPU: {upu or 'nije odabrano'}
+DPU: {dpu or 'nije odabrano'}
+Zona: {zone}
+""".strip()
 
-# Slanje podataka na webhook kad korisnik klikne
-if st.button('Pošaljite'):
-    if upit:  # Provjerava ako je upit popunjen
-        webhook_response = send_to_webhook(kvart, upit)
-        st.write(f'Webhook odgovor: {webhook_response}')
-        
-        # ChatGPT odgovara na postavljeni upit
-        chatgpt_response = chat_with_gpt(upit)
-        st.write(f'ChatGPT odgovor: {chatgpt_response}')
+    # Webhook adresa
+    webhook_url = "https://primary-production-b791f.up.railway.app/webhook-test/03419cdb-f956-48b4-85d8-725a6a4db8fb"
+
+    # Slanje podataka kao JSON
+    response = requests.post(webhook_url, json={"text": combined_input})
+
+    if response.status_code == 200:
+        st.success("✅ Upit poslan uspješno!")
+        try:
+            data = response.json()
+            st.markdown("### 📬 Odgovor bota:")
+            st.markdown(data.get("response", "⛔ Nema sadržaja u odgovoru."))
+        except:
+            st.markdown("📝 Odgovor:")
+            st.text(response.text)
     else:
-        st.error('Molimo unesite upit prije slanja.')
+        st.error(f"Greška prilikom slanja (status kod {response.status_code})")
 
-# Polje za dodatna pitanja ChatGPT-u
-additional_question = st.text_area('Pitajte ChatGPT bilo što:', '')
-
-if additional_question:
-    if st.button('Postavite ChatGPT pitanje'):
-        chatgpt_answer = chat_with_gpt(additional_question)
-        st.write(f'ChatGPT odgovor: {chatgpt_answer}')
-        st.text_area('Upit', additional_question, key="copy_question", disabled=True)  # Copy option
-
-# Dodavanje natuknica za savršen upit za pretraživanje prostornog plana kvarta
-st.subheader('Savjeti za postavljanje savršenog upita:')
-st.write("""
-Da biste dobili najprecizniji odgovor vezano uz prostorni plan kvarta, slijedite ove smjernice:
-
-- **Specifičnost**: Budite precizni u svom upitu. Na primjer, umjesto "Koje su zgrade dozvoljene?", pitajte "Koje visine zgrade su dozvoljene u kvartu [ime kvarta]?"
-- **Lokacija**: Ako postavljate pitanje o određenom dijelu kvarta, navedite specifičnu ulicu ili područje unutar kvarta. Na primjer, "Koje su namjene zemljišta na ulici [ime ulice]?"
-- **Vrsta građevinskih dozvola**: Pitajte specifično o građevinskim dozvolama, kao što su "Koje vrste objekata mogu biti izgrađene u [ime kvarta]?"
-- **Dostupni planovi**: Ako tražite određeni plan, pitajte: "Je li dostupna detaljna prostorna regulacija za [ime kvarta]?" ili "Kako mogu pristupiti informacijama o prostornom planu za [ime kvarta]?"
-- **Datumi i promjene**: Ako vas zanima hoće li biti promjena, pitajte: "Hoće li biti promjena u prostornom planu kvarta [ime kvarta] u sljedećih 5 godina?"
 """)
