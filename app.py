@@ -90,7 +90,7 @@ with col2:
     # Submit button
     if st.button("✅ Pošaljite upit"):
         # Webhook adresa
-        webhook_url = "https://primary-production-b791f.up.railway.app/webhook-test/03419cdb-f956-48b4-85d8-725a6a4db8fb"
+        webhook_url = "https://primary-production-b791f.up.railway.app/webhook-test/839b893b-f460-479c-9295-5f3bb8ab3488"
 
         # Slanje podataka kao JSON
         response = requests.post(webhook_url, json={"text": combined_input})
