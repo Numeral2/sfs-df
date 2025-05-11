@@ -1,10 +1,14 @@
 import streamlit as st
 import requests
 
+# Postavke stranice
 st.set_page_config(page_title="Katastarski upit - Trogir", layout="centered")
 st.title("📄 Katastarski upit za područje Trogira")
 
-st.markdown("Unesite potrebne informacije da bismo mogli obraditi vaš upit:")
+st.markdown("""
+    Ovdje možete unijeti potrebne informacije kako bismo obradili vaš katastarski upit za područje Trogira. 
+    Molimo vas da ispunite sve relevantne podatke kako bi upit bio što precizniji.
+""")
 
 # Nulti korak - Link prema ISPU sustavu i upute
 st.markdown("### 🔗 Nulti korak: Provjerite zonu na ISPU sustavu")
@@ -17,18 +21,24 @@ st.markdown("""
     - Svaka boja označava specifičnu zonu, npr. crvena za **komercijalne zone**, plava za **industrijske zone**, itd.
 """, unsafe_allow_html=True)
 
-# Inputi
-parcel_number = st.text_input("🔢 Broj katastarske čestice")
-parcel_area = st.text_input("📐 Kvadratura katastarske čestice (u m²)")
+st.markdown("### 📝 Podaci o katastarskoj čestici")
+
+# Unos podataka
+parcel_number = st.text_input("🔢 Broj katastarske čestice", placeholder="Unesite broj katastarske čestice")
+
+parcel_area = st.text_input("📐 Kvadratura katastarske čestice (u m²)", placeholder="Unesite kvadraturu u m²")
 
 city = "Trogir"  # Fiksno jer je samo za Trogir
-st.markdown("### 📍 Odaberite naselje")
+
+# Naselje
+st.markdown("### 📍 Odaberite naselje:")
 naselje = st.selectbox("Naselje", [
     "Arbanija", "Divulje", "Drvenik Mali", "Drvenik Veli",
     "Mastrinka", "Plano", "Trogir", "Žedno"
 ])
 
-st.markdown("### 🏗️ Odaberite UPU (ako postoji)")
+# UPU (Urbanistički plan uređenja)
+st.markdown("### 🏗️ Odaberite UPU (ako postoji):")
 upu = st.selectbox("UPU", [
     "",  # Prazno ako nije primjenjivo
     "UPU Krban",
@@ -41,32 +51,36 @@ upu = st.selectbox("UPU", [
     "UPU proizvodne zone Plano 3 (UPU 7)"
 ])
 
-st.markdown("### 🏘️ Odaberite DPU (ako postoji)")
+# DPU (Detaljni plan uređenja)
+st.markdown("### 🏘️ Odaberite DPU (ako postoji):")
 dpu = st.selectbox("DPU", [
     "",  # Prazno ako nije primjenjivo
     "DPU Brigi – Lokvice (DPU 5)",
     "DPU 1. faze obale od Madiracinog mula do Duhanke (DPU 4)"
 ])
 
-zone = st.text_input("🧭 Zona (prema ISPU sustavu)")
+# Zona (Prema ISPU sustavu)
+st.markdown("### 🧭 Unesite zonu prema ISPU sustavu:")
+zone = st.text_input("Zona (prema ISPU sustavu)", placeholder="Unesite zonu iz ISPU sustava")
 
-# Dodatni upit od strane korisnika
-additional_query = st.text_area("📝 Dodatni upit (ako želite postaviti dodatna pitanja)")
+# Dodatni upit
+st.markdown("### 💬 Dodatni upit:")
+additional_query = st.text_area("Dodatni upit (ako imate specifična pitanja)", placeholder="Ovdje možete dodati dodatna pitanja ili napomene")
 
-# Submit
+# Submit button
 if st.button("✅ Pošaljite upit"):
-    # Spremi sve u jedan tekstualni box za bot
+    # Kombiniramo sve podatke u jedan tekst za bot
     combined_input = f"""
-Grad: {city}
-Katastarska čestica: {parcel_number}
-Kvadratura: {parcel_area} m²
-Naselje: {naselje}
-UPU: {upu or 'nije odabrano'}
-DPU: {dpu or 'nije odabrano'}
-Zona: {zone}
+    Grad: {city}
+    Katastarska čestica: {parcel_number}
+    Kvadratura: {parcel_area} m²
+    Naselje: {naselje}
+    UPU: {upu or 'nije odabrano'}
+    DPU: {dpu or 'nije odabrano'}
+    Zona: {zone}
 
-Dodatni upit: {additional_query or 'Nema dodatnog upita.'}
-""".strip()
+    Dodatni upit: {additional_query or 'Nema dodatnog upita.'}
+    """.strip()
 
     # Webhook adresa
     webhook_url = "https://primary-production-b791f.up.railway.app/webhook-test/03419cdb-f956-48b4-85d8-725a6a4db8fb"
