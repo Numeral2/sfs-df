@@ -5,7 +5,7 @@ import requests
 webhook_url = 'https://primary-production-b791f.up.railway.app/webhook-test/839b893b-f460-479c-9295-5f3bb8ab3488'
 
 # ChatGPT API URL (zamijeni s vlastitim API-jem)
-chatgpt_api_url = 'https://your-chatgpt-api-url.com'
+chatgpt_api_url = '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'
 
 # Funkcija za slanje podataka na webhook
 def send_to_webhook(kvart, upit):
@@ -60,3 +60,15 @@ if additional_question:
         chatgpt_answer = chat_with_gpt(additional_question)
         st.write(f'ChatGPT odgovor: {chatgpt_answer}')
         st.text_area('Upit', additional_question, key="copy_question", disabled=True)  # Copy option
+
+# Dodavanje natuknica za savršen upit za pretraživanje prostornog plana kvarta
+st.subheader('Savjeti za postavljanje savršenog upita:')
+st.write("""
+Da biste dobili najprecizniji odgovor vezano uz prostorni plan kvarta, slijedite ove smjernice:
+
+- **Specifičnost**: Budite precizni u svom upitu. Na primjer, umjesto "Koje su zgrade dozvoljene?", pitajte "Koje visine zgrade su dozvoljene u kvartu [ime kvarta]?"
+- **Lokacija**: Ako postavljate pitanje o određenom dijelu kvarta, navedite specifičnu ulicu ili područje unutar kvarta. Na primjer, "Koje su namjene zemljišta na ulici [ime ulice]?"
+- **Vrsta građevinskih dozvola**: Pitajte specifično o građevinskim dozvolama, kao što su "Koje vrste objekata mogu biti izgrađene u [ime kvarta]?"
+- **Dostupni planovi**: Ako tražite određeni plan, pitajte: "Je li dostupna detaljna prostorna regulacija za [ime kvarta]?" ili "Kako mogu pristupiti informacijama o prostornom planu za [ime kvarta]?"
+- **Datumi i promjene**: Ako vas zanima hoće li biti promjena, pitajte: "Hoće li biti promjena u prostornom planu kvarta [ime kvarta] u sljedećih 5 godina?"
+""")
