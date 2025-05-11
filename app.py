@@ -69,5 +69,3 @@ Zona: {zone}
             st.text(response.text)
     else:
         st.error(f"Greška prilikom slanja (status kod {response.status_code})")
-
-""")
