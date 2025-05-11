@@ -6,6 +6,17 @@ st.title("📄 Katastarski upit za područje Trogira")
 
 st.markdown("Unesite potrebne informacije da bismo mogli obraditi vaš upit:")
 
+# Nulti korak - Link prema ISPU sustavu i upute
+st.markdown("### 🔗 Nulti korak: Provjerite zonu na ISPU sustavu")
+st.markdown("""
+    Prije nego što nastavite, pogledajte **[ISPU grafički prikaz](https://www.ispu.hr/)** i odredite kojoj zoni pripada vaša čestica:
+    1. Otvorite stranicu ISPU.
+    2. U lijevom padajućem izborniku uključite odgovarajući sloj (na primjer, sloj sa zonama).
+    3. Pogledajte koja boja označava vašu zonu. 
+    - **Najčešće žuta boja** označava **stambeno-poslovnu zonu** ili **mješovitu zonu (M1)**.
+    - Svaka boja označava specifičnu zonu, npr. crvena za **komercijalne zone**, plava za **industrijske zone**, itd.
+""", unsafe_allow_html=True)
+
 # Inputi
 parcel_number = st.text_input("🔢 Broj katastarske čestice")
 parcel_area = st.text_input("📐 Kvadratura katastarske čestice (u m²)")
@@ -39,8 +50,11 @@ dpu = st.selectbox("DPU", [
 
 zone = st.text_input("🧭 Zona (prema ISPU sustavu)")
 
+# Dodatni upit od strane korisnika
+additional_query = st.text_area("📝 Dodatni upit (ako želite postaviti dodatna pitanja)")
+
 # Submit
-if st.button("✅ Pošalji upit"):
+if st.button("✅ Pošaljite upit"):
     # Spremi sve u jedan tekstualni box za bot
     combined_input = f"""
 Grad: {city}
@@ -50,6 +64,8 @@ Naselje: {naselje}
 UPU: {upu or 'nije odabrano'}
 DPU: {dpu or 'nije odabrano'}
 Zona: {zone}
+
+Dodatni upit: {additional_query or 'Nema dodatnog upita.'}
 """.strip()
 
     # Webhook adresa
@@ -69,3 +85,4 @@ Zona: {zone}
             st.text(response.text)
     else:
         st.error(f"Greška prilikom slanja (status kod {response.status_code})")
+
