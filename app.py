@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.set_page_config(page_title="Katastarski Upit - Trogir", layout="centered")
+st.set_page_config(page_title="Prostorni Plan Trogir", layout="centered")
 
 # CSS za izgled aplikacije
 st.markdown("""
@@ -10,12 +10,19 @@ st.markdown("""
         background: linear-gradient(135deg, #f4f2ec, #d6d4c9); /* Zemljani tonovi */
         color: #2b2a2a; /* Tamno smeđa boja za tekst */
         font-family: 'Arial', sans-serif;
+        background-image: url('https://upload.wikimedia.org/wikipedia/commons/5/5c/Terrestrial_globe_illustration.svg'); /* Ilustracija Zemlje */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
     }
+
     .block-container {
         padding-top: 3rem;
         padding-bottom: 3rem;
         padding-left: 2rem;
         padding-right: 2rem;
+        background-color: rgba(255, 255, 255, 0.8); /* Poluprozirni pozadinski sloj */
+        border-radius: 1.5rem;
     }
 
     /* Stilovi za tekstualne elemente */
@@ -88,13 +95,19 @@ st.markdown("""
         100% { opacity: 1; }
     }
 
+    /* Stil za grafičke elemente */
+    .map-icon {
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
 # Glavni dio aplikacije
 st.markdown("""
-    <h2>Katastarski Upit za Grad Trogir</h2>
-    <p>Popunite informacije o čestici kako bi generirali zahtjev za analizu.</p>
+    <h2>Prostorni Plan za Grad Trogir</h2>
+    <p>Upišite podatke o katastarskoj čestici kako biste generirali relevantne informacije iz prostornog plana.</p>
     <hr style='border-top: 2px solid #d1b07b;'>
 """, unsafe_allow_html=True)
 
@@ -157,20 +170,3 @@ Zahvaljujem unaprijed na uvidu u relevantne dokumente i planove.
 
     st.markdown("### ✅ Generirani tekstualni zahtjev:")
     st.code(final_text, language="markdown", class_="stCode")
-
-    # Webhook opcionalno
-    webhook_url = "https://primary-production-b791f.up.railway.app/webhook-test/03419cdb-f956-48b4-85d8-725a6a4db8fb"
-    try:
-        response = requests.post(webhook_url, json={"text": final_text})
-        if response.status_code == 200:
-            st.success("Zahtjev uspješno poslan.")
-            try:
-                data = response.json()
-                st.markdown("### 📬 Odgovor:")
-                st.markdown(data.get("response", "⚠️ Nema teksta u odgovoru."))
-            except:
-                st.text(response.text)
-        else:
-            st.error(f"Greška kod slanja: {response.status_code}")
-    except Exception as e:
-        st.error(f"Došlo je do greške: {e}")
