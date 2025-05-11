@@ -24,13 +24,14 @@ st.markdown("""
 # Stiliziranje za manju širinu inputa
 st.markdown("""
     <style>
-        .stTextInput input {width: 180px;}  /* Smanjena širina za text_input */
-        .stSelectbox select {width: 180px;}  /* Smanjena širina za selectbox */
+        .stTextInput input {width: 150px;}  /* Smanjena širina za text_input */
+        .stSelectbox select {width: 150px;}  /* Smanjena širina za selectbox */
+        .stTextArea textarea {width: 300px;}  /* Smanjena širina za text_area */
     </style>
 """, unsafe_allow_html=True)
 
 # Layout za Streamlit - Kompaktni layout (smanjen razmak između elemenata)
-col1, col2 = st.columns([3, 1])  # Dvostruki stupci: 3 za unos, 1 za bot
+col1, col2 = st.columns([1, 1])  # Dvostruki stupci: 1 za unos, 1 za bot
 
 with col1:
     # Unos podataka u manji prostor
@@ -105,3 +106,4 @@ with col2:
                 st.text(response.text)
         else:
             st.error(f"Greška prilikom slanja (status kod {response.status_code})")
+
