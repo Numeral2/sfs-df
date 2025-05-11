@@ -8,30 +8,20 @@ st.markdown("""
     /* Globalni stilovi */
     .main {
         font-family: 'Arial', sans-serif;
-        background-color: #f4f4f4; /* Svijetla pozadina */
-        color: #333333; /* Tamna boja za tekst */
+        background-color: #f4f4f4;
+        color: #333333;
     }
-
     .block-container {
         padding: 2rem;
         background-color: white;
         border-radius: 1rem;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Blaga sjena za uočljivost */
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
         margin-top: 2rem;
     }
-
-    /* Stilovi za tekstualne elemente */
     h2, h4 {
         text-align: center;
         font-weight: 700;
     }
-    p {
-        text-align: center;
-        font-size: 16px;
-        line-height: 1.6;
-    }
-    
-    /* Stil za formu */
     .stTextInput > div > div > input {
         background-color: #fff;
         border: 1px solid #ccc;
@@ -48,8 +38,6 @@ st.markdown("""
         margin-bottom: 1rem;
         width: 100%;
     }
-
-    /* Posebni stilovi za gumb za slanje */
     .stButton > button {
         background-color: #5c6bc0;
         color: white;
@@ -61,23 +49,6 @@ st.markdown("""
     }
     .stButton > button:hover {
         background-color: #3f4d9d;
-    }
-
-    /* Stil za prikazivanje generiranog teksta */
-    .stCode {
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 1rem;
-        padding: 1rem;
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 16px;
-        color: #333;
-        margin-top: 2rem;
-    }
-
-    /* Raspored za formu */
-    .form-section {
-        margin-bottom: 2rem;
     }
     </style>
 """, unsafe_allow_html=True)
