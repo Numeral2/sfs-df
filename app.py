@@ -21,8 +21,8 @@ st.markdown("""
     - Svaka boja označava specifičnu zonu, npr. crvena za **komercijalne zone**, plava za **industrijske zone**, itd.
 """, unsafe_allow_html=True)
 
-# Layout za Streamlit (Stavljanje bota sa strane)
-col1, col2 = st.columns([3, 1])
+# Layout za Streamlit (Smanjeni layout za unose)
+col1, col2 = st.columns([2, 1])
 
 with col1:
     # Unos podataka
@@ -35,14 +35,14 @@ with col1:
     parcel_area = st.text_input("📐 Kvadratura katastarske čestice (u m²)", placeholder="Unesite kvadraturu u m²")
 
     # Naselje
-    st.markdown("### 📍 Odaberite naselje:")
+    st.markdown("### 📍 Naselje:")
     naselje = st.selectbox("Naselje", [
         "Arbanija", "Divulje", "Drvenik Mali", "Drvenik Veli",
         "Mastrinka", "Plano", "Trogir", "Žedno"
     ])
     
     # UPU (Urbanistički plan uređenja)
-    st.markdown("### 🏗️ Odaberite UPU (ako postoji):")
+    st.markdown("### 🏗️ UPU (ako postoji):")
     upu = st.selectbox("UPU", [
         "",  # Prazno ako nije primjenjivo
         "UPU Krban",
@@ -56,7 +56,7 @@ with col1:
     ])
     
     # DPU (Detaljni plan uređenja)
-    st.markdown("### 🏘️ Odaberite DPU (ako postoji):")
+    st.markdown("### 🏘️ DPU (ako postoji):")
     dpu = st.selectbox("DPU", [
         "",  # Prazno ako nije primjenjivo
         "DPU Brigi – Lokvice (DPU 5)",
@@ -64,12 +64,12 @@ with col1:
     ])
     
     # Zona (Prema ISPU sustavu)
-    st.markdown("### 🧭 Unesite zonu prema ISPU sustavu:")
-    zone = st.text_input("Zona (prema ISPU sustavu)", placeholder="Unesite zonu iz ISPU sustava")
+    st.markdown("### 🧭 Zona (prema ISPU sustavu):")
+    zone = st.text_input("Zona", placeholder="Unesite zonu iz ISPU sustava")
     
     # Dodatni upit
-    st.markdown("### 💬 Dodatni upit:")
-    additional_query = st.text_area("Dodatni upit (ako imate specifična pitanja)", placeholder="Ovdje možete dodati dodatna pitanja ili napomene")
+    st.markdown("### 💬 Dodatni upit (ako imate):")
+    additional_query = st.text_area("Dodatni upit", placeholder="Ovdje možete dodati dodatna pitanja ili napomene")
 
     # Kombinirani input koji se automatski popunjava u box
     combined_input = f"""
@@ -89,7 +89,7 @@ with col2:
     st.markdown("### 🤖 Bot odgovor")
     
     # Polje za odgovor od bota, automatski popunjeno
-    user_input_box = st.text_area("Upit za bot", value=combined_input, height=300)
+    user_input_box = st.text_area("Upit za bot", value=combined_input, height=250)
     
     # Submit button
     if st.button("✅ Pošaljite upit"):
@@ -110,3 +110,4 @@ with col2:
                 st.text(response.text)
         else:
             st.error(f"Greška prilikom slanja (status kod {response.status_code})")
+
