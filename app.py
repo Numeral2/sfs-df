@@ -1,56 +1,105 @@
 import streamlit as st
-import requests
 
-st.set_page_config(page_title="Katastarski upit – Trogir", layout="centered")
+st.set_page_config(page_title="Katastarski Upit - Trogir", layout="centered")
 
-# Stilizacija stranice
+# CSS za izgled aplikacije
 st.markdown("""
     <style>
+    /* Globalni stilovi */
     .main {
-        background-color: #f8f5f2;
+        background: linear-gradient(135deg, #f4f2ec, #d6d4c9); /* Zemljani tonovi */
+        color: #2b2a2a; /* Tamno smeđa boja za tekst */
+        font-family: 'Arial', sans-serif;
     }
     .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+        padding-left: 2rem;
+        padding-right: 2rem;
     }
+
+    /* Stilovi za tekstualne elemente */
+    h2, h4 {
+        color: #5f4b3b; /* Topla tamno smeđa za naslove */
+        text-align: center;
+        font-weight: 700;
+    }
+    p, ul {
+        color: #7d6a4e; /* Svjetlija smeđa za tekst */
+        text-align: center;
+        font-size: 16px;
+    }
+    a {
+        color: #ba9d5b; /* Zlato žuta za linkove */
+        text-decoration: none;
+        font-weight: 600;
+    }
+    a:hover {
+        color: #d1b07b; /* Svjetlija žuta pri hoveru */
+        text-decoration: underline;
+    }
+
+    /* Stil za formu */
     .stTextInput > div > div > input {
-        background-color: #fff;
-        border-radius: 0.5rem;
-        border: 1px solid #ccc;
-        padding: 0.6rem;
+        background-color: #f0ebe1; /* Svijetli bež za inpute */
+        border: 2px solid #d1b07b; /* Zlata boja za granicu */
+        padding: 0.8rem;
+        border-radius: 0.8rem;
     }
     .stSelectbox > div > div {
-        background-color: #fff;
-        border-radius: 0.5rem;
-        border: 1px solid #ccc;
-        padding: 0.6rem;
+        background-color: #f0ebe1;
+        border: 2px solid #d1b07b;
+        padding: 0.8rem;
+        border-radius: 0.8rem;
     }
-    </style>
-""", unsafe_allow_html=True)
 
-# Nulti korak - link prema ISPU stranici s uputama
-st.markdown("""
-    <h2 style='text-align: center; color: #333;'>Korak 0: Provjeri zonu na ISPU platformi</h2>
-    <p style='text-align: center; color: #666;'>Prije nego nastaviš, provjeri u kojoj zoni se nalazi tvoje zemljište. Klikni na donji link kako bi otvorio ISPU platformu. Slijedi upute ispod kako bi pronašao odgovarajući sloj i zonu.</p>
-    <p style='text-align: center;'>
-    <a href="https://www.ispu.hr/" target="_blank" style="font-size: 16px; color: #0066cc; text-decoration: none;">Posjeti ISPU platformu</a>
-    </p>
-    <h4 style='text-align: center; color: #333;'>Upute:</h4>
-    <ul style='text-align: center; color: #666;'>
-        <li>1. Na stranici ISPU, u lijevom padajućem izborniku odaberi sloj \"Prostorni plan\".</li>
-        <li>2. Uključi odgovarajući sloj za zonu koja te zanima (npr. \"Stambeno-poslovna zona\", \"Poslovna zona\", itd.).</li>
-        <li>3. Provjeri boju na karti koja označava tvoju zonu. Najčešće žuta boja označava stambeno-poslovnu zonu (M1), dok je plava boja rezervirana za industrijske zone (M2).</li>
-    </ul>
+    /* Posebni stilovi za gumb za slanje */
+    .stButton > button {
+        background-color: #ba9d5b; /* Zlato žuta boja za gumb */
+        color: white;
+        border-radius: 1.5rem;
+        font-weight: 600;
+        padding: 0.8rem 2rem;
+        font-size: 18px;
+    }
+    .stButton > button:hover {
+        background-color: #d1b07b;
+    }
+
+    /* Stilovi za prikazivanje generiranog teksta */
+    .stCode {
+        background-color: #f4f2ec;
+        border: 2px solid #d1b07b;
+        border-radius: 1rem;
+        padding: 1rem;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 16px;
+        color: #5f4b3b;
+    }
+
+    /* Animacije */
+    .animated-btn {
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    /* Animacija za gumbe */
+    @keyframes fadeIn {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
+    }
+
+    </style>
 """, unsafe_allow_html=True)
 
 # Glavni dio aplikacije
 st.markdown("""
-    <h2 style='text-align: center; color: #333;'>Katastarski upit za područje Grada Trogira</h2>
-    <p style='text-align: center; color: #666;'>Popunite sve potrebne informacije kako bi se generirao strukturiran zahtjev za analiziranje čestice.</p>
-    <hr style='border-top: 1px solid #bbb;'>
+    <h2>Katastarski Upit za Grad Trogir</h2>
+    <p>Popunite informacije o čestici kako bi generirali zahtjev za analizu.</p>
+    <hr style='border-top: 2px solid #d1b07b;'>
 """, unsafe_allow_html=True)
 
 with st.form("katastarski_form"):
+    # Prvi korak - Podaci o čestici
     st.subheader("1. Podaci o čestici")
     col1, col2 = st.columns(2)
     with col1:
@@ -58,6 +107,7 @@ with st.form("katastarski_form"):
     with col2:
         parcel_area = st.text_input("Kvadratura čestice (m²)", placeholder="npr. 545")
 
+    # Drugi korak - Lokacija
     st.subheader("2. Lokacija unutar Grada Trogira")
     col3, col4 = st.columns(2)
     with col3:
@@ -68,6 +118,7 @@ with st.form("katastarski_form"):
     with col4:
         zona = st.text_input("Zona prema ISPU sustavu", placeholder="npr. M1, K1, R3")
 
+    # Treći korak - Prostorni planovi
     st.subheader("3. Planovi prostornog uređenja")
     col5, col6 = st.columns(2)
     with col5:
@@ -86,8 +137,8 @@ with st.form("katastarski_form"):
             "DPU 1. faze obale od Madiracinog mula do Duhanke (DPU 4)"
         ])
 
-    st.markdown("""<hr style='border-top: 1px solid #bbb;'>""", unsafe_allow_html=True)
-    submitted = st.form_submit_button("Generiraj zahtjev")
+    # Gumb za slanje
+    submitted = st.form_submit_button("Generiraj zahtjev", use_container_width=True)
 
 if submitted:
     final_text = f"""
@@ -105,14 +156,12 @@ Zahvaljujem unaprijed na uvidu u relevantne dokumente i planove.
     """.strip()
 
     st.markdown("### ✅ Generirani tekstualni zahtjev:")
-    st.code(final_text, language="markdown")
+    st.code(final_text, language="markdown", class_="stCode")
 
     # Webhook opcionalno
     webhook_url = "https://primary-production-b791f.up.railway.app/webhook-test/03419cdb-f956-48b4-85d8-725a6a4db8fb"
-
     try:
         response = requests.post(webhook_url, json={"text": final_text})
-
         if response.status_code == 200:
             st.success("Zahtjev uspješno poslan.")
             try:
