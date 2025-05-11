@@ -3,6 +3,7 @@ attrs
 blinker
 cachetools
 certifi
+pyperclip
 charset-normalizer
 click
 colorama
