@@ -6,6 +6,7 @@ certifi
 pyperclip
 charset-normalizer
 click
+streamlit-authenticator
 colorama
 gitdb
 gitpython
