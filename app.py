@@ -68,4 +68,3 @@ if page == "Login":
     login_page()
 elif page == "Sign Up":
     signup_page()
-
