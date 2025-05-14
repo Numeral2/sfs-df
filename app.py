@@ -81,8 +81,8 @@ def send_query(data: dict):
 # --- Main Execution Flow ---
 authenticator = configure_auth()
 
-# Now explicitly specify the location argument ('main')
-name, authentication_status, username = authenticator.login("Prijava", location="main")
+# Now call the login function without the 'location' argument
+name, authentication_status, username = authenticator.login("Prijava")
 
 if authentication_status:
     main_application()
