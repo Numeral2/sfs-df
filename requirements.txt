@@ -5,6 +5,7 @@ cachetools
 certifi
 pyperclip
 charset-normalizer
+python-dotenv
 click
 streamlit-authenticator
 colorama
