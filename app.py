@@ -14,7 +14,7 @@ def configure_auth():
             'usernames': {
                 os.getenv("APP_USERNAME", "admin"): {
                     'name': os.getenv("APP_NAME", "Admin User"),
-                    'password': os.getenv("APP_PASSWORD_HASH, "$2b$12$QwbHdK.uHoGRkRgDXaWCcureqD0.XzRbBdR/wPbs1ZIvfuFEZ0rn")  # Pohranjeni hash lozinke iz .env
+                    'password': os.getenv("APP_PASSWORD_HASH")  # Pohranjeni hash lozinke iz .env
                 }
             }
         },
