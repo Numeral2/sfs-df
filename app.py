@@ -4,12 +4,6 @@ from streamlit_authenticator import Authenticate, Hasher
 import requests
 from dotenv import load_dotenv
 
-# Configuration
-load_dotenv()  # Load environment variables
-WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://your-default-webhook.url")
-APP_NAME = "Katastarski upit - Trogir"
-LOGO_URL = "https://upload.wikimedia.org/wikipedia/commons/e/e2/Trogir_Harbor_Panorama.jpg"
-
 # --- Authentication Setup ---
 @st.cache_resource
 def configure_auth():
@@ -19,7 +13,7 @@ def configure_auth():
             'usernames': {
                 os.getenv("APP_USERNAME", "admin"): {
                     'name': os.getenv("APP_NAME", "Admin User"),
-                    'password': Hasher(os.getenv("APP_PASSWORD", "safe_password")).generate()
+                    'password': Hasher.generate([os.getenv("APP_PASSWORD", "safe_password")])[0]
                 }
             }
         },
@@ -27,6 +21,7 @@ def configure_auth():
         key='trogir_katastar_123',
         cookie_expiry_days=1
     )
+
 
 authenticator = configure_auth()
 
