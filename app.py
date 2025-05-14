@@ -1,9 +1,8 @@
 import os
 import streamlit as st
-from streamlit_authenticator import Authenticate, Hasher
-import requests
+from streamlit_authenticator import Authenticate
 from dotenv import load_dotenv
-import bcrypt
+import requests
 
 # Učitaj varijable iz .env datoteke
 load_dotenv()
@@ -82,8 +81,8 @@ def send_query(data: dict):
 # --- Main Execution Flow ---
 authenticator = configure_auth()
 
-# Login location should be 'sidebar' or 'main'
-name, authentication_status, username = authenticator.login("Prijava", "sidebar")
+# Try logging in without passing the location argument
+name, authentication_status, username = authenticator.login("Prijava")
 
 if authentication_status:
     main_application()
@@ -91,3 +90,4 @@ elif authentication_status is False:
     st.error("🔐 Neispravni pristupni podaci")
 elif authentication_status is None:
     st.warning("⏳ Molimo prijavite se za pristup sustavu")
+
