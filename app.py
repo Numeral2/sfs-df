@@ -3,17 +3,18 @@ import streamlit as st
 from streamlit_authenticator import Authenticate, Hasher
 import requests
 from dotenv import load_dotenv
+import bcrypt
+print(bcrypt.hashpw(b"tvoja_lozinka", bcrypt.gensalt()).decode())
 
-# --- Authentication Setup ---
+
 @st.cache_resource
 def configure_auth():
-    """Configure authentication credentials"""
     return Authenticate(
         credentials={
             'usernames': {
                 os.getenv("APP_USERNAME", "admin"): {
                     'name': os.getenv("APP_NAME", "Admin User"),
-                    'password': Hasher.generate([os.getenv("APP_PASSWORD", "safe_password")])[0]
+                    'password': os.getenv("APP_PASSWORD_HASH")
                 }
             }
         },
