@@ -9,8 +9,8 @@ import bcrypt
 load_dotenv()
 
 # --- Authentication Setup ---
-@st.cache_resource
 def configure_auth():
+    """Create authenticator without caching since it uses widgets"""
     return Authenticate(
         credentials={
             'usernames': {
@@ -24,8 +24,6 @@ def configure_auth():
         key='trogir_katastar_123',
         cookie_expiry_days=1
     )
-
-authenticator = configure_auth()
 
 # --- Page Configuration ---
 st.set_page_config(
@@ -82,7 +80,7 @@ def send_query(data: dict):
         st.error(f"Greška u slanju podataka na webhook: {e}")
 
 # --- Main Execution Flow ---
-name, authentication_status, username = authenticator.login("Prijava", "main")
+name, authentication_status, username = configure_auth().login("Prijava", "main")
 
 if authentication_status:
     main_application()
