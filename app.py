@@ -81,8 +81,8 @@ def send_query(data: dict):
 # --- Main Execution Flow ---
 authenticator = configure_auth()
 
-# Try logging in without passing the location argument
-name, authentication_status, username = authenticator.login("Prijava")  # No location argument
+# Now explicitly specify the location argument ('main')
+name, authentication_status, username = authenticator.login("Prijava", location="main")
 
 if authentication_status:
     main_application()
@@ -90,4 +90,3 @@ elif authentication_status is False:
     st.error("🔐 Neispravni pristupni podaci")
 elif authentication_status is None:
     st.warning("⏳ Molimo prijavite se za pristup sustavu")
-
