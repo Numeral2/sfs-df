@@ -19,7 +19,7 @@ def configure_auth():
             'usernames': {
                 os.getenv("APP_USERNAME", "admin"): {
                     'name': os.getenv("APP_NAME", "Admin User"),
-                    'password': Hasher([os.getenv("APP_PASSWORD", "safe_password")]).generate()[0]
+                    'password': Hasher(os.getenv("APP_PASSWORD", "safe_password")).generate()
                 }
             }
         },
