@@ -36,8 +36,8 @@ def login_page():
     authenticator = configure_auth()
 
     st.title("Login to the Application")
-    # Specify location explicitly for the login form
-    username, authentication_status = authenticator.login("Prijava", location="main")
+    # Only provide the "login" button without extra parameters
+    authentication_status, username = authenticator.login("Prijava")
 
     if authentication_status:
         st.success(f"Welcome {username}")
@@ -68,3 +68,4 @@ if page == "Login":
     login_page()
 elif page == "Sign Up":
     signup_page()
+
