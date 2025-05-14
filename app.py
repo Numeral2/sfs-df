@@ -82,7 +82,7 @@ def send_query(data: dict):
 authenticator = configure_auth()
 
 # Try logging in without passing the location argument
-name, authentication_status, username = authenticator.login("Prijava")
+name, authentication_status, username = authenticator.login("Prijava")  # No location argument
 
 if authentication_status:
     main_application()
