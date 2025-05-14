@@ -80,7 +80,10 @@ def send_query(data: dict):
         st.error(f"Greška u slanju podataka na webhook: {e}")
 
 # --- Main Execution Flow ---
-name, authentication_status, username = configure_auth().login("Prijava", "main")
+authenticator = configure_auth()
+
+# Login location should be 'sidebar' or 'main'
+name, authentication_status, username = authenticator.login("Prijava", "sidebar")
 
 if authentication_status:
     main_application()
