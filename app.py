@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # === POSTAVI SVOJ WEBHOOK URL OVDJE ===
-N8N_WEBHOOK_URL = "https://primary-production-b791f.up.railway.app/webhook/839b893b-f460-479c-9295-5f3bb8ab3488"
+N8N_WEBHOOK_URL = "https://primary-production-b791f.up.railway.app/webhook-test/839b893b-f460-479c-9295-5f3bb8ab3488"
 
 st.title("Katastarski podaci - unos")
 
