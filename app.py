@@ -41,7 +41,11 @@ with st.form("katastar_form"):
     
     zona = st.selectbox(
         "Zona *",
-        options=["Zona A - Historijska jezgra", "Zona B - Zaštitni pojas", "Zona C - Suvremeni razvoj"],
+        options=[
+            "Zona A - Historijska jezgra",
+            "Zona B - Zaštitni pojas",
+            "Zona C - Suvremeni razvoj"
+        ],
         help="Odaberite zonu iz ISPU sustava"
     )
     
@@ -53,14 +57,20 @@ with st.form("katastar_form"):
         if not all([broj_cestice, kvadratura, naselje, upu, dpu, zona]):
             st.error("Molimo ispunite sva obavezna polja (označena zvjezdicom *)")
         else:
+            # Kombiniramo sve podatke u jedan string za slanje
+            combined_input = (
+                f"Broj katastarske čestice: {broj_cestice}\n"
+                f"Kvadratura: {kvadratura} m²\n"
+                f"Naselje: {naselje}\n"
+                f"UPU: {upu}\n"
+                f"DPU: {dpu}\n"
+                f"Zona: {zona}\n"
+            )
+            if dodatni_upit:
+                combined_input += f"Dodatni upit: {dodatni_upit}\n"
+            
             payload = {
-                "broj_katastarske_cestice": broj_cestice,
-                "kvadratura": kvadratura,
-                "naselje": naselje,
-                "upu": upu,
-                "dpu": dpu,
-                "zona": zona,
-                "dodatni_upit": dodatni_upit if dodatni_upit else None
+                "combined_input": combined_input
             }
             
             try:
@@ -71,7 +81,23 @@ with st.form("katastar_form"):
                 
                 if response.status_code == 200:
                     st.success("Podaci uspješno poslani!")
-                    st.json(response.json())
+                    try:
+                        response_data = response.json()
+                        with st.expander("Kompletan pregled podataka", expanded=True):
+                            st.markdown("**Poslani i obrađeni podaci:**")
+                            st.markdown(f"``````")
+                            st.markdown("**Odgovor webhooka:**")
+                            # Prikaz odgovora kao tekst ili kao markdown, ovisno o tipu
+                            if isinstance(response_data, dict):
+                                for key, value in response_data.items():
+                                    st.markdown(f"- **{key}:** {value}")
+                            else:
+                                st.markdown(str(response_data))
+                        with st.expander("Tehnički detalji (JSON)"):
+                            st.json(response_data)
+                    except Exception as parsing_error:
+                        st.error(f"Greška pri obradi odgovora: {str(parsing_error)}")
+                        st.text(response.text)
                 else:
                     st.error(f"Greška pri slanju: {response.status_code} - {response.text}")
             except Exception as e:
