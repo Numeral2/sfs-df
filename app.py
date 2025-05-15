@@ -80,19 +80,15 @@ with st.form("katastar_form"):
                 )
                 
                 if response.status_code == 200:
-                    st.success("Podaci uspješno poslani!")
                     try:
                         response_data = response.json()
-                        with st.expander("Kompletan pregled podataka", expanded=True):
-                            st.markdown("**Poslani i obrađeni podaci:**")
-                            st.markdown(f"``````")
-                            st.markdown("**Odgovor webhooka:**")
-                            # Prikaz odgovora kao tekst ili kao markdown, ovisno o tipu
-                            if isinstance(response_data, dict):
-                                for key, value in response_data.items():
-                                    st.markdown(f"- **{key}:** {value}")
-                            else:
-                                st.markdown(str(response_data))
+                        # Prikaz n8n odgovora
+                        st.success("Podaci uspješno poslani!")
+                        if "message" in response_data:
+                            st.info(response_data["message"])
+                        if "combined_input" in response_data:
+                            with st.expander("Poslani podaci"):
+                                st.code(response_data["combined_input"])
                         with st.expander("Tehnički detalji (JSON)"):
                             st.json(response_data)
                     except Exception as parsing_error:
