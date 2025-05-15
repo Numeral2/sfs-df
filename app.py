@@ -9,10 +9,34 @@ with st.form("katastar_form"):
     kvadratura = st.number_input("Kvadratura katastarske čestice (m²) *", min_value=0.0, format="%.2f")
     
     st.subheader("Prostornoplanerske odredbe")
-    ppuo_option = st.selectbox(
-        "Odaberite PPUO/PPUG/UPU/DPU *",
-        options=["Trogir - Centar", "Trogir - Luka", "Trogir - Prigradsko područje"],
-        help="Odaberite iz predefinirane liste za Trogir"
+    naselje = st.selectbox(
+        "Odaberite naselje Trogira *",
+        options=[
+            "Arbanija", "Divulje", "Drvenik Mali", "Drvenik Veli",
+            "Mastrinka", "Plano", "Trogir", "Žedno"
+        ]
+    )
+    
+    upu = st.selectbox(
+        "Odaberite UPU pod Trogir *",
+        options=[
+            "UPU Krban",
+            "UPU naselja Žedno",
+            "UPU poslovne zone POS 3 (UPU 10)",
+            "UPU ugostiteljsko – turističke zone Sveti Križ (UPU 17)",
+            "UPU naselja Mastrinka 1 (UPU 6.1)",
+            "UPU poslovne zone POS 2 (UPU 15)",
+            "UPU naselja Plano (UPU 18)",
+            "UPU proizvodne zone Plano 3 (UPU 7)"
+        ]
+    )
+    
+    dpu = st.selectbox(
+        "Odaberite DPU pod Trogir *",
+        options=[
+            "DPU Brigi – Lokvice (DPU 5)",
+            "DPU 1.faze obale od Madiracnog mula do Duhanke (DPU 4)"
+        ]
     )
     
     zona = st.selectbox(
@@ -26,13 +50,15 @@ with st.form("katastar_form"):
     submitted = st.form_submit_button("Pošalji podatke")
     
     if submitted:
-        if not broj_cestice or not kvadratura:
-            st.error("Molimo ispunite obavezna polja (označena zvjezdicom *)")
+        if not all([broj_cestice, kvadratura, naselje, upu, dpu, zona]):
+            st.error("Molimo ispunite sva obavezna polja (označena zvjezdicom *)")
         else:
             payload = {
                 "broj_katastarske_cestice": broj_cestice,
                 "kvadratura": kvadratura,
-                "prostorni_plan": ppuo_option,
+                "naselje": naselje,
+                "upu": upu,
+                "dpu": dpu,
                 "zona": zona,
                 "dodatni_upit": dodatni_upit if dodatni_upit else None
             }
