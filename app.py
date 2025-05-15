@@ -1,6 +1,9 @@
 import streamlit as st
 import requests
 
+# === POSTAVI SVOJ WEBHOOK URL OVDJE ===
+N8N_WEBHOOK_URL = "https://primary-production-b791f.up.railway.app/webhook-test/839b893b-f460-479c-9295-5f3bb8ab3488"  # <-- OVDJE STAVI SVOJ PRODUCTION WEBHOOK URL
+
 st.title("Katastarski podaci - unos")
 
 with st.form("katastar_form"):
@@ -57,7 +60,7 @@ with st.form("katastar_form"):
         if not all([broj_cestice, kvadratura, naselje, upu, dpu, zona]):
             st.error("Molimo ispunite sva obavezna polja (označena zvjezdicom *)")
         else:
-            # Kombiniramo sve podatke u jedan string za slanje
+            # Kombiniraj sve podatke u jedan string
             combined_input = (
                 f"Broj katastarske čestice: {broj_cestice}\n"
                 f"Kvadratura: {kvadratura} m²\n"
@@ -75,20 +78,23 @@ with st.form("katastar_form"):
             
             try:
                 response = requests.post(
-                    "https://primary-production-b791f.up.railway.app/webhook-test/839b893b-f460-479c-9295-5f3bb8ab3488",
-                    json=payload
+                    N8N_WEBHOOK_URL,
+                    json=payload,
+                    timeout=15
                 )
                 
                 if response.status_code == 200:
                     try:
                         response_data = response.json()
-                        # Prikaz n8n odgovora
                         st.success("Podaci uspješno poslani!")
+                        # Prikaži poruku iz n8n ako postoji
                         if "message" in response_data:
                             st.info(response_data["message"])
+                        # Prikaži poslani podatak ako postoji
                         if "combined_input" in response_data:
                             with st.expander("Poslani podaci"):
                                 st.code(response_data["combined_input"])
+                        # Prikaži cijeli JSON odgovor
                         with st.expander("Tehnički detalji (JSON)"):
                             st.json(response_data)
                     except Exception as parsing_error:
@@ -98,4 +104,5 @@ with st.form("katastar_form"):
                     st.error(f"Greška pri slanju: {response.status_code} - {response.text}")
             except Exception as e:
                 st.error(f"Došlo je do greške: {str(e)}")
+
 
