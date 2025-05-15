@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # === POSTAVI SVOJ WEBHOOK URL OVDJE ===
-N8N_WEBHOOK_URL = "https://primary-production-b791f.up.railway.app/webhook-test/839b893b-f460-479c-9295-5f3bb8ab3488"  # <-- OVDJE STAVI SVOJ PRODUCTION WEBHOOK URL
+N8N_WEBHOOK_URL = "https://primary-production-b791f.up.railway.app/webhook-test/839b893b-f460-479c-9295-5f3bb8ab3488"
 
 st.title("Katastarski podaci - unos")
 
@@ -60,7 +60,6 @@ with st.form("katastar_form"):
         if not all([broj_cestice, kvadratura, naselje, upu, dpu, zona]):
             st.error("Molimo ispunite sva obavezna polja (označena zvjezdicom *)")
         else:
-            # Kombiniraj sve podatke u jedan string
             combined_input = (
                 f"Broj katastarske čestice: {broj_cestice}\n"
                 f"Kvadratura: {kvadratura} m²\n"
@@ -71,38 +70,39 @@ with st.form("katastar_form"):
             )
             if dodatni_upit:
                 combined_input += f"Dodatni upit: {dodatni_upit}\n"
-            
-            payload = {
-                "combined_input": combined_input
-            }
-            
+
+            payload = {"combined_input": combined_input}
+
             try:
                 response = requests.post(
                     N8N_WEBHOOK_URL,
                     json=payload,
-                    timeout=15
+                    timeout=15,
+                    headers={"Content-Type": "application/json"}
                 )
-                
-                if response.status_code == 200:
-                    try:
-                        response_data = response.json()
-                        st.success("Podaci uspješno poslani!")
-                        # Prikaži poruku iz n8n ako postoji
-                        if "message" in response_data:
-                            st.info(response_data["message"])
-                        # Prikaži poslani podatak ako postoji
-                        if "combined_input" in response_data:
-                            with st.expander("Poslani podaci"):
-                                st.code(response_data["combined_input"])
-                        # Prikaži cijeli JSON odgovor
-                        with st.expander("Tehnički detalji (JSON)"):
-                            st.json(response_data)
-                    except Exception as parsing_error:
-                        st.error(f"Greška pri obradi odgovora: {str(parsing_error)}")
-                        st.text(response.text)
+                response.raise_for_status()
+
+                content_type = response.headers.get("Content-Type", "")
+                if "application/json" in content_type:
+                    response_data = response.json()
+                    st.success("Podaci uspješno poslani!")
+
+                    if "message" in response_data:
+                        st.info(response_data["message"])
+
+                    if "combined_input" in response_data:
+                        with st.expander("Poslani podaci"):
+                            st.code(response_data["combined_input"])
+
+                    with st.expander("Tehnički detalji (JSON)"):
+                        st.json(response_data)
                 else:
-                    st.error(f"Greška pri slanju: {response.status_code} - {response.text}")
-            except Exception as e:
-                st.error(f"Došlo je do greške: {str(e)}")
+                    st.warning("Odgovor nije u JSON formatu.")
+                    st.text(response.text)
+            except requests.exceptions.RequestException as e:
+                st.error(f"Greška pri slanju: {str(e)}")
+            except ValueError as ve:
+                st.error(f"Odgovor nije valjani JSON: {str(ve)}")
+                st.text(response.text)
 
 
