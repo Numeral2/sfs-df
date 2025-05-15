@@ -1,71 +1,53 @@
-import os
 import streamlit as st
-from streamlit_authenticator import Authenticate
-from dotenv import load_dotenv
+import requests
 
-# Učitaj varijable iz .env datoteke
-load_dotenv()
+st.title("Katastarski podaci - unos")
 
-# --- Authentication Setup ---
-def configure_auth():
-    """Create authenticator without caching since it uses widgets"""
-    return Authenticate(
-        credentials={
-            'usernames': {
-                os.getenv("APP_USERNAME", "admin"): {
-                    'name': os.getenv("APP_NAME", "Admin User"),
-                    'password': os.getenv("APP_PASSWORD_HASH")  # Pohranjeni hash lozinke iz .env
-                }
-            }
-        },
-        cookie_name='simple_auth',
-        key='simple_auth_123',
-        cookie_expiry_days=1
+with st.form("katastar_form"):
+    st.subheader("Osnovni podaci")
+    broj_cestice = st.text_input("Broj katastarske čestice *", help="Unesite broj iz zemljišnika")
+    kvadratura = st.number_input("Kvadratura katastarske čestice (m²) *", min_value=0.0, format="%.2f")
+    
+    st.subheader("Prostornoplanerske odredbe")
+    ppuo_option = st.selectbox(
+        "Odaberite PPUO/PPUG/UPU/DPU *",
+        options=["Trogir - Centar", "Trogir - Luka", "Trogir - Prigradsko područje"],
+        help="Odaberite iz predefinirane liste za Trogir"
     )
-
-# --- Page Configuration ---
-st.set_page_config(
-    page_title="Login / Sign Up",
-    page_icon="🔒",
-    layout="centered"
-)
-
-# --- Authentication Flow ---
-def login_page():
-    """Login page"""
-    authenticator = configure_auth()
-
-    st.title("Login to the Application")
-    # Only provide the "login" button without extra parameters
-    authentication_status, username = authenticator.login("Prijava")
-
-    if authentication_status:
-        st.success(f"Welcome {username}")
-        # After successful login, you can display the content here
-    elif authentication_status is False:
-        st.error("Invalid credentials")
-    elif authentication_status is None:
-        st.warning("Please enter your credentials")
-
-def signup_page():
-    """Sign-up page to create a new user"""
-    st.title("Create an Account")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    confirm_password = st.text_input("Confirm Password", type="password")
-
-    if st.button("Sign Up"):
-        if password == confirm_password:
-            # Save the new user credentials here (in your database or file)
-            st.success("Account successfully created!")
+    
+    zona = st.selectbox(
+        "Zona *",
+        options=["Zona A - Historijska jezgra", "Zona B - Zaštitni pojas", "Zona C - Suvremeni razvoj"],
+        help="Odaberite zonu iz ISPU sustava"
+    )
+    
+    dodatni_upit = st.text_area("Dodatni upit (opcijski)", height=100)
+    
+    submitted = st.form_submit_button("Pošalji podatke")
+    
+    if submitted:
+        if not broj_cestice or not kvadratura:
+            st.error("Molimo ispunite obavezna polja (označena zvjezdicom *)")
         else:
-            st.error("Passwords do not match!")
-
-# --- Main App Flow ---
-page = st.radio("Select a page", ("Login", "Sign Up"))
-
-if page == "Login":
-    login_page()
-elif page == "Sign Up":
-    signup_page()
+            payload = {
+                "broj_katastarske_cestice": broj_cestice,
+                "kvadratura": kvadratura,
+                "prostorni_plan": ppuo_option,
+                "zona": zona,
+                "dodatni_upit": dodatni_upit if dodatni_upit else None
+            }
+            
+            try:
+                response = requests.post(
+                    "https://primary-production-b791f.up.railway.app/webhook-test/839b893b-f460-479c-9295-5f3bb8ab3488",
+                    json=payload
+                )
+                
+                if response.status_code == 200:
+                    st.success("Podaci uspješno poslani!")
+                    st.json(response.json())
+                else:
+                    st.error(f"Greška pri slanju: {response.status_code} - {response.text}")
+            except Exception as e:
+                st.error(f"Došlo je do greške: {str(e)}")
 
