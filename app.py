@@ -10,7 +10,7 @@ with st.form("katastar_form"):
     st.subheader("Osnovni podaci")
     broj_cestice = st.text_input("Broj katastarske čestice *", help="Unesite broj iz zemljišnika")
     kvadratura = st.number_input("Kvadratura katastarske čestice (m²) *", min_value=0.0, format="%.2f")
-    
+
     st.subheader("Prostornoplanerske odredbe")
     naselje = st.selectbox(
         "Odaberite naselje Trogira *",
@@ -19,7 +19,7 @@ with st.form("katastar_form"):
             "Mastrinka", "Plano", "Trogir", "Žedno"
         ]
     )
-    
+
     upu = st.selectbox(
         "Odaberite UPU pod Trogir *",
         options=[
@@ -33,7 +33,7 @@ with st.form("katastar_form"):
             "UPU proizvodne zone Plano 3 (UPU 7)"
         ]
     )
-    
+
     dpu = st.selectbox(
         "Odaberite DPU pod Trogir *",
         options=[
@@ -41,7 +41,7 @@ with st.form("katastar_form"):
             "DPU 1.faze obale od Madiracnog mula do Duhanke (DPU 4)"
         ]
     )
-    
+
     zona = st.selectbox(
         "Zona *",
         options=[
@@ -51,11 +51,11 @@ with st.form("katastar_form"):
         ],
         help="Odaberite zonu iz ISPU sustava"
     )
-    
+
     dodatni_upit = st.text_area("Dodatni upit (opcijski)", height=100)
-    
+
     submitted = st.form_submit_button("Pošalji podatke")
-    
+
     if submitted:
         if not all([broj_cestice, kvadratura, naselje, upu, dpu, zona]):
             st.error("Molimo ispunite sva obavezna polja (označena zvjezdicom *)")
@@ -82,18 +82,11 @@ with st.form("katastar_form"):
                 )
                 response.raise_for_status()
 
-                data = response.json()
-
-                if "output" in data:
-                    st.success("Odgovor iz n8n:")
-                    st.text(data["output"])
-                else:
-                    st.warning("n8n nije vratio očekivani tekst.")
-                    st.json(data)
-            except requests.exceptions.RequestException as e:
-                st.error(f"Greška pri slanju: {str(e)}")
-            except ValueError as ve:
-                st.error(f"Odgovor nije valjani JSON: {str(ve)}")
+                # Prikazi odgovor kao običan tekst, ne parsiramo kao JSON
+                st.success("Podaci uspješno poslani!")
+                st.text("Odgovor iz n8n webhooka:")
                 st.text(response.text)
 
+            except requests.exceptions.RequestException as e:
+                st.error(f"Greška pri slanju: {str(e)}")
 
