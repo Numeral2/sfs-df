@@ -19,7 +19,7 @@ def load_lottiefile(filepath: str):
 
 # === Učitaj animaciju i slike ===
 lottie_animation = load_lottiefile("header_animation.json")
-tlocrt_img = Image.open("tlocrt_example.png") if "tlocrt_example.png" else None  # zamijeni ako je drugačije ime
+tlocrt_img = Image.open(""C:\Users\saric\Downloads\tlocrt__example.jpg"") if "tlocrt_example.png" else None  # zamijeni ako je drugačije ime
 
 # === Naslov i animacija ===
 col_hero1, col_hero2 = st.columns([2, 1])
