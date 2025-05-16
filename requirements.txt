@@ -12,6 +12,7 @@ bcrypt
 streamlit-authenticator
 colorama
 gitdb
+plotly
 gitpython
 idna
 jinja2
