@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import requests
 from streamlit_lottie import st_lottie
-import plotly.graph_objects as go
 from PIL import Image
 
 # Postavke stranice
