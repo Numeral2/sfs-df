@@ -1,25 +1,22 @@
 import streamlit as st
 import requests
 from streamlit_lottie import st_lottie
-from PIL import Image
-import json
+import os
 
 # === POSTAVI SVOJ WEBHOOK URL OVDJE ===
 N8N_WEBHOOK_URL = "https://primary-production-b791f.up.railway.app/webhook-test/839b893b-f460-479c-9295-5f3bb8ab3488"
 
 st.set_page_config(page_title="Katastarski upitnik Trogir", layout="wide", page_icon="🏗️")
 
-# === Funkcija za učitavanje lokalne Lottie animacije ===
-def load_lottiefile(filepath: str):
-    try:
-        with open(filepath, "r") as f:
-            return json.load(f)
-    except Exception:
+# === Funkcija za učitavanje Lottie animacije ===
+def load_lottieurl(url: str):
+    r = requests.get(url)
+    if r.status_code != 200:
         return None
+    return r.json()
 
-# === Učitaj animaciju i slike ===
-lottie_animation = load_lottiefile("header_animation.json")
-tlocrt_img = Image.open(""C:\Users\saric\Downloads\tlocrt__example.jpg"") if "tlocrt_example.png" else None  # zamijeni ako je drugačije ime
+# === Učitaj animaciju ===
+lottie_animation = load_lottieurl("https://assets10.lottiefiles.com/packages/lf20_1pxqjqps.json")
 
 # === Naslov i animacija ===
 col_hero1, col_hero2 = st.columns([2, 1])
@@ -35,8 +32,6 @@ with col_hero1:
 with col_hero2:
     if lottie_animation:
         st_lottie(lottie_animation, height=250, key="header_animation")
-    else:
-        st.info("🎬 Animacija trenutno nije dostupna.")
 
 st.markdown("---")
 
@@ -82,9 +77,6 @@ with col1:
         submitted = st.form_submit_button("📨 Pošalji")
 
 with col2:
-    st.subheader("📊 Vizualizacija - Tlocrt")
-    if tlocrt_img:
-        st.image(tlocrt_img, caption="Primjer tlocrta građevinske čestice", use_column_width=True)
     st.subheader("📨 Odgovor sustava")
     output_placeholder = st.empty()
 
