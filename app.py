@@ -186,40 +186,30 @@ def main():
     with col1:
         st.header("📝 Opišite poslovnu promjenu")
         
-        # Forma za unos
-        with st.form("business_transaction_form", clear_on_submit=False):
+        # Forma za unos - pojednostavljeno
+        with st.form("business_transaction_form"):
             # Datum
             datum = st.date_input(
                 "📅 Datum transakcije:", 
-                datetime.now(),
-                help="Datum kada se dogodila poslovna promjena"
+                datetime.now()
             )
             
             # Glavni opis
             opis_promjene = st.text_area(
                 "💬 Opišite što se dogodilo:",
-                placeholder="Npr: 'Kupili smo robu za 10.000 kn i platili gotovinom' ili 'Izdali smo račun klijentu za usluge u iznosu od 25.000 kn'",
-                height=120,
-                help="Opišite prirodnim jezikom što se dogodilo u poslovanju"
+                placeholder="Npr: 'Kupili smo robu za 10.000 kn i platili gotovinom'",
+                height=120
             )
             
-            # Dodatne informacije (opcionalno) - sve mora biti unutar forme
-            st.markdown("📋 **Dodatne informacije (opcionalno):**")
-            
+            # Dodatne informacije
             referenca = st.text_input(
-                "🔗 Broj dokumenta/Reference:",
-                placeholder="R-001/2024, INT-123, itd."
-            )
-            
-            napomene = st.text_area(
-                "📝 Napomene:",
-                placeholder="Dodatne informacije ili objašnjenja...",
-                height=60
+                "🔗 Broj dokumenta (opcionalno):",
+                placeholder="R-001/2024"
             )
             
             kontakt = st.text_input(
-                "👤 Partner/Klijent:",
-                placeholder="Naziv kupca, dobavljača ili partnera"
+                "👤 Partner/Klijent (opcionalno):",
+                placeholder="Naziv partnera"
             )
             
             # Submit button
@@ -265,7 +255,6 @@ def main():
             "datum": datum.strftime("%Y-%m-%d"),
             "opis_promjene": opis_promjene.strip(),
             "referenca": referenca.strip() if referenca else "",
-            "napomene": napomene.strip() if napomene else "",
             "kontakt": kontakt.strip() if kontakt else "",
             "timestamp": datetime.now().isoformat(),
             "jezik": "hrvatski"
