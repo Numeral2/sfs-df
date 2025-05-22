@@ -4,66 +4,73 @@ import pandas as pd
 from fpdf import FPDF
 from io import BytesIO
 
+# Funkcija za latin1 encoding sa zamjenom znakova koje fpdf ne može prikazati
 def to_latin1(text):
-    if text is None:
+    if not text:
         return ""
     return text.encode('latin1', errors='replace').decode('latin1')
 
-def generate_pdf(data):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    pdf.cell(0, 10, to_latin1("T-Konta knjiženja"), ln=True, align="C")
-    pdf.ln(5)
+# PDF klasa s funkcijom za ispis T-konta
+class PDFTConta(FPDF):
+    def header(self):
+        self.set_font("Arial", "B", 14)
+        self.cell(0, 10, to_latin1("T-Konta Knjiženje"), 0, 1, "C")
 
-    for d in data:
-        konto = to_latin1(d.get("konto", ""))
-        dugovna = str(d.get("dugovna", "0"))
-        potrazna = str(d.get("potrazna", "0"))
+    def add_t_konto(self, konto, dugovna, potrazna):
+        self.set_font("Arial", "", 12)
+        self.cell(70, 10, to_latin1(konto), 1)
+        self.cell(40, 10, to_latin1(str(dugovna)), 1, 0, "R")
+        self.cell(40, 10, to_latin1(str(potrazna)), 1, 1, "R")
 
-        pdf.cell(60, 10, konto, border=1)
-        pdf.cell(60, 10, dugovna, border=1, align="R")
-        pdf.cell(60, 10, potrazna, border=1, align="R")
-        pdf.ln()
+# URL n8n webhooka - zamijeni sa svojim webhook URL-om
+N8N_WEBHOOK_URL = "https://primary-production-b791f.up.railway.app/webhook-test/70299750-07ed-4701-ba52-13d63bbab711"
 
-    pdf_output = BytesIO()
-    pdf.output(pdf_output)
-    pdf_output.seek(0)
-    return pdf_output
+st.title("Unos knjiženja i T-Konta PDF")
 
-st.title("Knjizenja -> n8n -> T-konta PDF")
+# Text area za unos knjiženja (primjer)
+knjizenja = st.text_area(
+    "Unesi knjiženja (po jedan redak):",
+    value=(
+        "1. Sa zaliha sirovina i materijala dali smo 20.000 eura vrijednosti materijala drugom poduzetniku na plastificiranje (dorada).\n"
+        "2. Poduzetnik je obavio plastificiranje i ispostavio račun na 4.000 eura + 1.000 eura PDV.\n"
+        "3. Primljen je račun za usluge odvoza i dovoza materijala na iznos 2.000 eura +500 eura PDV.\n"
+        "4. Primili smo dorađeni materijal i zadužili u skladište po novoj vrijednosti (na konto 3100A)."
+    )
+)
 
-tekst = st.text_area("Upiši knjiženja (npr. opisne rečenice)", height=200)
+if st.button("Pošalji u n8n i generiraj T-Konta PDF"):
+    try:
+        # Poziv n8n s podacima u JSON-u
+        response = requests.post(N8N_WEBHOOK_URL, json={"text": knjizenja})
+        response.raise_for_status()
+        data = response.json()
 
-if st.button("Pošalji u n8n"):
-    if not tekst.strip():
-        st.error("Unesi tekst knjiženja prije slanja!")
-    else:
-        webhook_url = "https://primary-production-b791f.up.railway.app/webhook-test/70299750-07ed-4701-ba52-13d63bbab711"  # <-- zamijeni ovdje svoj URL
+        # Pretpostavljam da n8n vraća listu konta pod ključem 'kontiranja'
+        konta = data.get("kontiranja")
+        if not konta:
+            st.error("n8n nije vratio konta ili ključ 'kontiranja' nije pronađen.")
+        else:
+            # Prikaz podataka u tablici
+            df = pd.DataFrame(konta)
+            st.write("### Podaci iz n8n:")
+            st.dataframe(df)
 
-        # Salji POST zahtjev
-        try:
-            response = requests.post(webhook_url, json={"text": tekst})
-            response.raise_for_status()
-            result = response.json()
+            # Generiraj PDF
+            pdf = PDFTConta()
+            pdf.add_page()
+            for row in konta:
+                pdf.add_t_konto(row["konto"], row["dugovna"], row["potrazna"])
 
-            # Pretpostavka: rezultat je lista dictova s kontima
-            if isinstance(result, list):
-                df = pd.DataFrame(result)
-                st.success("Podaci uspješno primljeni iz n8n:")
-                st.dataframe(df)
+            pdf_output = BytesIO()
+            pdf.output(pdf_output)
+            pdf_output.seek(0)
 
-                if st.button("Generiraj PDF s T-kontima"):
-                    pdf_file = generate_pdf(result)
-                    st.download_button(
-                        label="Preuzmi PDF",
-                        data=pdf_file,
-                        file_name="t_konta_knjizenja.pdf",
-                        mime="application/pdf"
-                    )
-            else:
-                st.error(f"Očekivao sam listu podataka, ali dobio sam:\n{result}")
+            st.download_button(
+                label="Preuzmi T-Konta PDF",
+                data=pdf_output,
+                file_name="t_konta.pdf",
+                mime="application/pdf"
+            )
 
-        except Exception as e:
-            st.error(f"Greška prilikom poziva n8n webhooka:\n{e}")
-
+    except Exception as e:
+        st.error(f"Došlo je do greške: {e}")
