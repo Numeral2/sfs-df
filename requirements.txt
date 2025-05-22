@@ -5,6 +5,7 @@ cachetools
 certifi
 pyperclip
 charset-normalizer
+reportlab
 python-dotenv
 click
 pandas
