@@ -32,7 +32,7 @@ def send_to_n8n_webhook(webhook_url, data):
         return None
 
 def create_t_account_pdf(df, account_name):
-    """Generiraj PDF s T-konto prikazom"""
+    """Generiraj PDF s T-konto prikazom - poboljšana verzija"""
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
     
@@ -48,7 +48,7 @@ def create_t_account_pdf(df, account_name):
         spaceAfter=30,
         alignment=1  # Centriranje
     )
-    title = Paragraph(f"T-KONTO: {account_name}", title_style)
+    title = Paragraph(f"T-KONTO IZVJEŠTAJ", title_style)
     elements.append(title)
     elements.append(Spacer(1, 20))
     
@@ -68,22 +68,30 @@ def create_t_account_pdf(df, account_name):
     potrazna_strana = []
     
     for _, row in df.iterrows():
-        if pd.notna(row.get('dugovna')) and row['dugovna'] != 0:
+        datum_str = str(row.get('datum', ''))[:10]  # Samo datum dio
+        opis_str = str(row.get('opis', row.get('konto', 'Transakcija')))[:25]  # Skrati ako je predugačko
+        
+        if pd.notna(row.get('dugovna')) and float(row['dugovna']) > 0:
             dugovna_strana.append([
-                row.get('datum', ''), 
-                row.get('opis', ''), 
-                f"{row['dugovna']:.2f} HRK"
+                datum_str,
+                opis_str,
+                f"{float(row['dugovna']):,.2f}"
             ])
-        if pd.notna(row.get('potrazna')) and row['potrazna'] != 0:
+        if pd.notna(row.get('potrazna')) and float(row['potrazna']) > 0:
             potrazna_strana.append([
-                row.get('datum', ''), 
-                row.get('opis', ''), 
-                f"{row['potrazna']:.2f} HRK"
+                datum_str,
+                opis_str, 
+                f"{float(row['potrazna']):,.2f}"
             ])
     
+    # Ako nema podataka, dodaj placeholder
+    if not dugovna_strana and not potrazna_strana:
+        dugovna_strana.append(['', 'Nema transakcija', '0,00'])
+        potrazna_strana.append(['', 'Nema transakcija', '0,00'])
+    
     # Izračunaj sume
-    dugovna_suma = df['dugovna'].fillna(0).sum()
-    potrazna_suma = df['potrazna'].fillna(0).sum()
+    dugovna_suma = float(df['dugovna'].fillna(0).sum())
+    potrazna_suma = float(df['potrazna'].fillna(0).sum())
     
     # Kreiraj T-konto tablicu
     max_rows = max(len(dugovna_strana), len(potrazna_strana), 1)
@@ -99,7 +107,7 @@ def create_t_account_pdf(df, account_name):
     
     # Header
     t_account_data.append(['DUGOVNA STRANA', '', '', 'POTRAŽNA STRANA', '', ''])
-    t_account_data.append(['Datum', 'Opis', 'Iznos', 'Datum', 'Opis', 'Iznos'])
+    t_account_data.append(['Datum', 'Opis', 'Iznos (HRK)', 'Datum', 'Opis', 'Iznos (HRK)'])
     
     # Redovi s podacima
     for i in range(max_rows):
@@ -108,12 +116,12 @@ def create_t_account_pdf(df, account_name):
     
     # Sume
     t_account_data.append(['','','','','',''])
-    t_account_data.append(['', 'UKUPNO:', f"{dugovna_suma:.2f} HRK", '', 'UKUPNO:', f"{potrazna_suma:.2f} HRK"])
+    t_account_data.append(['', 'UKUPNO:', f"{dugovna_suma:,.2f}", '', 'UKUPNO:', f"{potrazna_suma:,.2f}"])
     
     # Saldo
     saldo = dugovna_suma - potrazna_suma
     if abs(saldo) > 0.01:  # Provjeri za manje razlike zbog floating point
-        saldo_text = f"SALDO: {abs(saldo):.2f} HRK"
+        saldo_text = f"SALDO: {abs(saldo):,.2f} HRK"
         if saldo > 0:
             saldo_text += " (Dugovno)"
         else:
@@ -125,7 +133,7 @@ def create_t_account_pdf(df, account_name):
     t_account_data.append(['', saldo_text, '', '', '', ''])
     
     # Kreiraj tablicu
-    table = Table(t_account_data, colWidths=[1.2*inch, 2*inch, 1*inch, 1.2*inch, 2*inch, 1*inch])
+    table = Table(t_account_data, colWidths=[1*inch, 1.8*inch, 1.2*inch, 1*inch, 1.8*inch, 1.2*inch])
     
     # Stiliziranje tablice
     table.setStyle(TableStyle([
@@ -144,6 +152,7 @@ def create_t_account_pdf(df, account_name):
         ('ALIGN', (5, 0), (5, -1), 'RIGHT'),  # Potražna iznosi
         ('FONTNAME', (0, 0), (-1, 1), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         
         # Sume
         ('BACKGROUND', (0, -3), (-1, -3), colors.yellow),
@@ -154,6 +163,32 @@ def create_t_account_pdf(df, account_name):
     ]))
     
     elements.append(table)
+    
+    # Dodaj detaljan pregled po kontovima
+    elements.append(Spacer(1, 30))
+    elements.append(Paragraph("DETALJAN PREGLED PO KONTOVIMA:", styles['Heading2']))
+    elements.append(Spacer(1, 15))
+    
+    # Grupiraj po kontovima
+    konto_summary = []
+    for _, row in df.iterrows():
+        konto_name = str(row.get('konto', 'N/A'))
+        dugovna_val = float(row.get('dugovna', 0))
+        potrazna_val = float(row.get('potrazna', 0))
+        if dugovna_val > 0 or potrazna_val > 0:
+            konto_summary.append([konto_name, f"{dugovna_val:,.2f}", f"{potrazna_val:,.2f}"])
+    
+    if konto_summary:
+        konto_table_data = [['KONTO', 'DUGOVNA (HRK)', 'POTRAŽNA (HRK)']] + konto_summary
+        konto_table = Table(konto_table_data, colWidths=[3*inch, 1.5*inch, 1.5*inch])
+        konto_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ]))
+        elements.append(konto_table)
     
     # Generiraj PDF
     doc.build(elements)
@@ -301,22 +336,73 @@ def main():
                         with col_y:
                             st.write(f"**Potražna:** {stavka.get('konto_potrazuje', '')} - {stavka.get('potrazna', 0):.2f} HRK")
             
-            # Prikaz tablice za T-konto
-            if 'tablica' in response:
-                st.header("📋 T-konto podaci")
+            # Obradi podatke od n8n-a - podrška za različite formate
+            st.header("📋 T-konto podaci")
+            
+            try:
+                # Pokušaj parsirati različite formate
+                df_data = []
                 
-                try:
-                    # Konvertiraj u DataFrame
+                # Format 1: response['tablica'] (standardni)
+                if 'tablica' in response:
                     if isinstance(response['tablica'], list):
-                        df = pd.DataFrame(response['tablica'])
+                        df_data = response['tablica']
                     else:
-                        df = pd.read_json(response['tablica'])
+                        df_data = pd.read_json(response['tablica']).to_dict('records')
+                
+                # Format 2: direktno numerički ključevi (vaš slučaj)
+                elif any(key.isdigit() for key in response.keys()):
+                    for key in sorted(response.keys()):
+                        if key.isdigit() or key == str(key):
+                            item = response[key]
+                            if isinstance(item, dict):
+                                # Dodaj datum ako nema
+                                if 'datum' not in item:
+                                    item['datum'] = datum.strftime("%Y-%m-%d")
+                                # Dodaj opis ako nema
+                                if 'opis' not in item:
+                                    item['opis'] = f"Transakcija - {item.get('konto', 'N/A')}"
+                                df_data.append(item)
+                
+                # Format 3: direktni format (fallback)
+                else:
+                    df_data = [response]
+                
+                if df_data:
+                    df = pd.DataFrame(df_data)
+                    
+                    # Standardiziraj kolone
+                    if 'dugovna' not in df.columns:
+                        df['dugovna'] = 0
+                    if 'potrazna' not in df.columns:
+                        df['potrazna'] = 0
+                    if 'datum' not in df.columns:
+                        df['datum'] = datum.strftime("%Y-%m-%d")
+                    if 'opis' not in df.columns:
+                        df['opis'] = df.get('konto', 'Transakcija')
+                    
+                    # Konvertiraj u brojeve
+                    df['dugovna'] = pd.to_numeric(df['dugovna'], errors='coerce').fillna(0)
+                    df['potrazna'] = pd.to_numeric(df['potrazna'], errors='coerce').fillna(0)
                     
                     # Prikaz tablice
                     st.dataframe(df, use_container_width=True)
                     
-                    # Generiraj PDF dugme
-                    account_name = response.get('glavni_konto', 'Nepoznat konto')
+                    # Prikaz sume za provjeru
+                    dugovna_suma = df['dugovna'].sum()
+                    potrazna_suma = df['potrazna'].sum()
+                    
+                    col_sum1, col_sum2, col_sum3 = st.columns(3)
+                    with col_sum1:
+                        st.metric("Ukupno dugovna", f"{dugovna_suma:,.2f} HRK")
+                    with col_sum2:
+                        st.metric("Ukupno potražna", f"{potrazna_suma:,.2f} HRK")
+                    with col_sum3:
+                        razlika = dugovna_suma - potrazna_suma
+                        st.metric("Razlika", f"{razlika:,.2f} HRK", delta=f"{razlika:,.2f}")
+                    
+                    # PDF generiranje
+                    account_name = "Svi_kontovi"
                     
                     col_pdf1, col_pdf2 = st.columns([1, 1])
                     
@@ -328,12 +414,13 @@ def main():
                                     
                                     # Store PDF u session state
                                     st.session_state['pdf_buffer'] = pdf_buffer.getvalue()
-                                    st.session_state['pdf_filename'] = f"T-konto_{account_name.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf"
+                                    st.session_state['pdf_filename'] = f"T-konto_{account_name}_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf"
                                     
                                     st.success("✅ PDF uspješno kreiran!")
                                     
                                 except Exception as e:
                                     st.error(f"❌ Greška pri kreiranju PDF-a: {str(e)}")
+                                    st.error(f"Debug info: {str(df.dtypes)}")
                     
                     with col_pdf2:
                         # Download dugme (pokazuje se samo ako je PDF kreiran)
@@ -345,10 +432,12 @@ def main():
                                 mime="application/pdf",
                                 use_container_width=True
                             )
+                else:
+                    st.warning("⚠️ Nema podataka za T-konto")
                 
-                except Exception as e:
-                    st.error(f"❌ Greška pri obradi tablice: {str(e)}")
-                    st.json(response)  # Debug prikaz
+            except Exception as e:
+                st.error(f"❌ Greška pri obradi podataka: {str(e)}")
+                st.json(response)  # Debug prikaz
             
             # Raw odgovor za debug
             with st.expander("🔧 Tehnički detalji (za debug)", expanded=False):
