@@ -203,23 +203,24 @@ def main():
                 help="Opišite prirodnim jezikom što se dogodilo u poslovanju"
             )
             
-            # Dodatne informacije (opcionalno)
-            with st.expander("📋 Dodatne informacije (opcionalno)"):
-                referenca = st.text_input(
-                    "🔗 Broj dokumenta/Reference:",
-                    placeholder="R-001/2024, INT-123, itd."
-                )
-                
-                napomene = st.text_area(
-                    "📝 Napomene:",
-                    placeholder="Dodatne informacije ili objašnjenja...",
-                    height=60
-                )
-                
-                kontakt = st.text_input(
-                    "👤 Partner/Klijent:",
-                    placeholder="Naziv kupca, dobavljača ili partnera"
-                )
+            # Dodatne informacije (opcionalno) - sve mora biti unutar forme
+            st.markdown("📋 **Dodatne informacije (opcionalno):**")
+            
+            referenca = st.text_input(
+                "🔗 Broj dokumenta/Reference:",
+                placeholder="R-001/2024, INT-123, itd."
+            )
+            
+            napomene = st.text_area(
+                "📝 Napomene:",
+                placeholder="Dodatne informacije ili objašnjenja...",
+                height=60
+            )
+            
+            kontakt = st.text_input(
+                "👤 Partner/Klijent:",
+                placeholder="Naziv kupca, dobavljača ili partnera"
+            )
             
             # Submit button
             submit_button = st.form_submit_button(
