@@ -1,6 +1,7 @@
 altair
 attrs
 blinker
+streamlit_folium
 cachetools
 certifi
 pyperclip
